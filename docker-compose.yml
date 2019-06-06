@@ -1,0 +1,48 @@
+version: '2'
+networks:
+  lumen_mongo_docker:
+     driver: bridge
+
+services:
+    web:
+        container_name: "nginx1.10"
+        build:
+            context: ./
+            dockerfile: ./docker/web.docker
+        volumes:
+            - ./:/var/www
+        ports:
+            - "8080:80"
+        networks:
+          - lumen_mongo_docker
+
+    app:
+        container_name: "php7.1-fpm"
+        build:
+            context: ./
+            dockerfile: ./docker/app.docker
+        volumes:
+            - ./:/var/www
+        networks:
+            - lumen_mongo_docker
+
+    mongo:
+      image: mongo
+      restart: always
+      networks:
+           - lumen_mongo_docker
+      environment:
+        MONGO_INITDB_ROOT_USERNAME: root
+        MONGO_INITDB_ROOT_PASSWORD: example
+
+    mongo-express:
+      image: mongo-express
+      restart: always
+      ports:
+        - 8081:8081
+      networks:
+        - lumen_mongo_docker
+      environment:
+        ME_CONFIG_MONGODB_ADMINUSERNAME: root
+        ME_CONFIG_MONGODB_ADMINPASSWORD: example
+
